@@ -35,8 +35,8 @@ Execute (set up async helper):
       if !a:warmup
         Assert !g:OmniSharp_test_waiting, a:funcname . ' timed out'
       endif
-
     endfunction
+  endif
 
   function! OmniSharpTestInitializeBuffer(filename) abort
     " Need to set a filename for OmniSharp-roslyn
