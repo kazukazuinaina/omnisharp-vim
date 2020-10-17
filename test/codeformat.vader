@@ -9,7 +9,11 @@ Given cs():
 Execute (run code format):
   call OmniSharpTestInitializeBuffer('CodeFormat')
   call OmniSharpWarmup('OmniSharp#actions#format#Format', [])
-  call OmniSharpTestAwait('OmniSharp#actions#format#Format', [])
+  if v:version ==# 802
+    call OmniSharpTestAwait('OmniSharp#actions#format#Format', [])
+  else
+    call OmniSharpTestAwait('OmniSharp#actions#format#Format', [], 0)
+  endif
 
 Expect cs(should format document):
   public class Test

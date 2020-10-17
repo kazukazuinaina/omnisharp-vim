@@ -9,20 +9,34 @@ Execute (set up async helper):
   function! OmniSharpWarmup(funcname, args) abort
     call OmniSharpTestAwait(a:funcname, a:args, 1)
   endfunction
+  
+  if v:version ==# 802
+    function! OmniSharpTestAwait(funcname, args, warmup=0) abort
+      let g:OmniSharp_test_waiting = 1
+      call function(a:funcname, a:args + [function('s:Callback')])()
+      let starttime = reltime()
+      while g:OmniSharp_test_waiting
+            \ && reltime(starttime)[0] < g:OmniSharp_test_timeout
+        sleep 50m
+      endwhile
+      if !a:warmup
+        Assert !g:OmniSharp_test_waiting, a:funcname . ' timed out'
+      endif
+    endfunction
+  else
+    function! OmniSharpTestAwait(funcname, args, warmup) abort
+      let g:OmniSharp_test_waiting = 1
+      call function(a:funcname, a:args + [function('s:Callback')])()
+      let starttime = reltime()
+      while g:OmniSharp_test_waiting
+            \ && reltime(starttime)[0] < g:OmniSharp_test_timeout
+        sleep 50m
+      endwhile
+      if !a:warmup
+        Assert !g:OmniSharp_test_waiting, a:funcname . ' timed out'
+      endif
 
-  function! OmniSharpTestAwait(funcname, args) abort
-    let warmup = 0
-    let g:OmniSharp_test_waiting = 1
-    call function(a:funcname, a:args + [function('s:Callback')])()
-    let starttime = reltime()
-    while g:OmniSharp_test_waiting
-    \ && reltime(starttime)[0] < g:OmniSharp_test_timeout
-      sleep 50m
-    endwhile
-    if !warmup
-      Assert !g:OmniSharp_test_waiting, a:funcname . ' timed out'
-    endif
-  endfunction
+    endfunction
 
   function! OmniSharpTestInitializeBuffer(filename) abort
     " Need to set a filename for OmniSharp-roslyn
